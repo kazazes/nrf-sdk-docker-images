@@ -56,7 +56,7 @@ def get_nrf_sdk_downloads():
             l = a["href"]
             match = re.search(r"SDK_([\d\.]+)_[a-z0-9]{7}\.zip", l, re.IGNORECASE) or re.search(r"sdk_v([\d_]+)_[a-z0-9]{5}\.zip", l, re.IGNORECASE)
             if match:
-                version = match.group(1).strip("_")
+                version = match.group(1).strip("_").replace("_", ".")
                 download_link = parse.urljoin(folder_url, l)
                 downloads[version] = download_link
     
