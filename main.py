@@ -69,8 +69,7 @@ def main():
 
     sdk_downloads = get_nrf_sdk_downloads()
 
-    # sdk_build_tags = list(set(sdk_downloads.keys()) - set(sdk_built_tags))
-    sdk_build_tags = sdk_downloads.keys()
+    sdk_build_tags = list(set(sdk_downloads.keys()) - set(sdk_built_tags))
     if len(sdk_build_tags):
         logging.info("nrf sdk tags to build:\n{}".format(" ".join(sdk_build_tags)))
 
