@@ -25,7 +25,4 @@ RUN mkdir /sdk && cd /sdk \
   && cd / \
   && rm -rf /sdk
 
-COPY entrypoint.sh /entrypoint.sh
-
-CMD [ "/entrypoint.sh" ]
 WORKDIR /src
