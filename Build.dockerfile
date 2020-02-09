@@ -16,10 +16,6 @@ RUN curl https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/
   && mv gcc-arm-none-eabi-* /opt/gnuarmemb \
   && rm -rf /opt/gnuarmemb/share/doc/gcc-arm-none-eabi/
 
-ENV PATH="/opt/gnuarmemb/bin:${PATH}"
-ENV GNU_INSTALL_ROOT=${GNUARMEMB_TOOLCHAIN_PATH}
-ENV GNU_VERSION=9.2.1
-ENV GNU_PREFIX=arm-none-eabi
 
 RUN mkdir /sdk && cd /sdk \
   && wget http://mirrors.kernel.org/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_1.4.7-1_amd64.deb \
@@ -29,5 +25,7 @@ RUN mkdir /sdk && cd /sdk \
   && cd / \
   && rm -rf /sdk
 
+COPY entrypoint.sh /entrypoint.sh
 
+CMD [ "/entrypoint.sh" ]
 WORKDIR /src
