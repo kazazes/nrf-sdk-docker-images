@@ -22,7 +22,8 @@ WORKDIR /ncs
 RUN west init -m https://github.com/NordicPlayground/fw-nrfconnect-nrf \
   && west update \
   && pip3 install --no-cache-dir -r zephyr/scripts/requirements.txt \
-  && pip3 install --no-cache-dir -r nrf/scripts/requirements.txt
+  && pip3 install --no-cache-dir -r nrf/scripts/requirements.txt \
+  && rm -rf /tmp/pip*
 
 RUN mkdir /sdk && cd /sdk \
   && wget http://mirrors.kernel.org/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_1.4.7-1_amd64.deb \
