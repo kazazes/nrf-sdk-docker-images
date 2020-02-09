@@ -126,7 +126,7 @@ def main():
     finished_builds = []
     latest = list(sdk_downloads.keys())[0]
     for tag in sdk_downloads.keys():
-        if semver.compare(tag, latest) < 0:
+        if semver.compare(tag, latest) > 0:
             latest = tag
 
     build_builder()
@@ -137,7 +137,9 @@ def main():
         build_base_docker_image(build_tag, sdk_downloads[tag])
         if tag == latest:
             tag_image_as_latest(build_tag)
-        publish_docker_image(build_tag)
+            publish_docker_image("{}:latest".format(SDK_DOCKER_REPO))
+        else:
+            publish_docker_image(build_tag)
         finished_builds.append(build_tag)
 
     map(delete_docker_image, finished_builds)
