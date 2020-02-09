@@ -4,5 +4,5 @@ export PATH="/opt/gnuarmemb/bin:${PATH}"
 export GNU_VERSION=9.2.1
 export GNU_PREFIX=arm-none-eabi
 
-cd /nrf-sdk/examples/ble_peripheral/ble_app_blinky/pca10059/s140/
-make -j $(nproc)
+cd /src/ble_app
+find . -name "Makefile" | xargs dirname | xargs -I _ bash -c "cd _ && make -j 8"
