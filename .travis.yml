@@ -5,10 +5,10 @@ python:
 install:
   - pip install -r requirements.txt
 # command to run tests
-before_script:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+# before_script:
+# - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 script:
-  - python main.py
+  - docker build --rm -f Build.dockerfile -t pckzs/nrfsdk-gcc .
 services:
   - docker
 branches:
