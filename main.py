@@ -20,7 +20,6 @@ BUILD_DOCKER_REPO = config["nrf-sdk"]["BuildDockerRepo"]
 
 LIST_TAGS_URL = "https://registry.hub.docker.com/v1/repositories/{}/tags"
 
-
 def run_shell_command(command):
     subprocess.run(command, shell=True, check=True)
 
