@@ -58,7 +58,7 @@ def pull_image(build_tag):
 def pull_if_exists(existing, tag, build_tag):
     try:
         if list(existing).index(tag) >= 0:
-            pull_image(tag)
+            pull_image(build_tag)
         pass
     except ValueError:
         pass
