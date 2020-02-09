@@ -5,6 +5,7 @@ import re
 import json
 import configparser
 import logging
+import semver
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -15,6 +16,7 @@ if LOG_LEVEL:
 
 SDK_BASE_URL = config["nrf-sdk"]["BaseURL"]
 SDK_DOCKER_REPO = config["nrf-sdk"]["DockerRepo"]
+BUILD_DOCKER_REPO = config["nrf-sdk"]["BuildDockerRepo"]
 
 LIST_TAGS_URL = "https://registry.hub.docker.com/v1/repositories/{}/tags"
 
@@ -23,10 +25,47 @@ def run_shell_command(command):
     subprocess.run(command, shell=True, check=True)
 
 
-def build_docker_image(name, download_url):
+def build_base_docker_image(name, download_url):
     logging.info("Building {}".format(name))
-    cmd = "docker build --build-arg download_url=\"{}\" -t \"{}\" .".format(
-        download_url, name)
+    cmd = "docker build --cache-from={} --build-arg DOCKER_HUB=\"{}\" --build-arg download_url=\"{}\" -t \"{}\" .".format(
+        name, SDK_DOCKER_REPO, download_url, name)
+    logging.info(cmd)
+    run_shell_command(cmd)
+
+
+def build_builder_docker_image(name):
+    logging.info("Building {}".format(name))
+    cmd = "docker build -f Build.dockerfile --cache-from={} -t \"{}\" .".format(
+        name, name)
+    logging.info(cmd)
+    run_shell_command(cmd)
+
+
+def build_builder():
+    build_tag = "{}:latest".format(BUILD_DOCKER_REPO)
+    pull_image(build_tag)
+    build_builder_docker_image(build_tag)
+    tag_image_as_latest(build_tag)
+    publish_docker_image(build_tag)
+
+
+def pull_image(build_tag):
+    cmd = "docker pull {}".format(build_tag)
+    logging.info(cmd)
+    run_shell_command(cmd)
+
+
+def pull_if_exists(existing, tag, build_tag):
+    try:
+        if list(existing).index(tag) >= 0:
+            pull_image(tag)
+        pass
+    except ValueError:
+        pass
+
+
+def tag_image_as_latest(build_tag):
+    cmd = "docker tag {} {}:latest".format(build_tag, BUILD_DOCKER_REPO)
     logging.info(cmd)
     run_shell_command(cmd)
 
@@ -65,7 +104,8 @@ def get_nrf_sdk_downloads():
             folder_url), features="html.parser")
         for a in folder_page.find_all("a", href=True):
             sdk_url = a["href"]
-            match = re.search(r"SDK_([\d\.]+)_[a-z0-9]{7}\.zip", sdk_url, re.IGNORECASE) or re.search(
+            match = re.search(r"SDK_([\d\.]+)_[a-z0-9]{7}\.zip", sdk_url,
+                              re.IGNORECASE) or re.search(
                 r"sdk_v([\d_]+)_[a-z0-9]{5}\.zip", sdk_url, re.IGNORECASE)
             if match:
                 version = match.group(1).strip("_").replace("_", ".")
@@ -80,19 +120,23 @@ def get_nrf_sdk_downloads():
 
 def main():
     sdk_built_tags = list_repo_tags(SDK_DOCKER_REPO)
+    build_built_tags = list_repo_tags(BUILD_DOCKER_REPO)
 
     sdk_downloads = get_nrf_sdk_downloads()
-
-    sdk_build_tags = list(set(sdk_downloads.keys()) - set(sdk_built_tags))
-    if len(sdk_build_tags):
-        logging.info("nrf sdk tags to build:\n{}".format(
-            " ".join(sdk_build_tags)))
-
     finished_builds = []
+    latest = list(sdk_downloads.keys())[0]
+    for tag in sdk_downloads.keys():
+        if semver.compare(tag, latest) < 0:
+            latest = tag
 
-    for tag in sdk_build_tags:
+    build_builder()
+
+    for tag in list(set(sdk_downloads.keys())):
         build_tag = "{}:{}".format(SDK_DOCKER_REPO, tag)
-        build_docker_image(build_tag, sdk_downloads[tag])
+        pull_if_exists(sdk_built_tags, tag, build_tag)
+        build_base_docker_image(build_tag, sdk_downloads[tag])
+        if tag == latest:
+            tag_image_as_latest(build_tag)
         publish_docker_image(build_tag)
         finished_builds.append(build_tag)
 

@@ -1,7 +1,4 @@
-ARG NRF_SDK_TAG=16.0.0
-ARG DOCKER_HUB=pckzs/nrf-sdk
-
-FROM ${DOCKER_HUB}:${NRF_SDK_TAG}
+FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
@@ -9,7 +6,7 @@ ENV GNUARMEMB_TOOLCHAIN_PATH="/gnuarmemb"
 
 RUN apt-get -qq update && apt-get install --no-install-recommends -y git cmake ninja-build gperf \
   ccache dfu-util device-tree-compiler wget python3-pip xz-utils file \
-  make gcc gcc-multilib
+  make gcc gcc-multilib curl ca-certificates
 
 RUN python3 -m pip install --no-cache-dir --upgrade pip tk setuptools wheel \
   && pip3 install --no-cache-dir cmake west
