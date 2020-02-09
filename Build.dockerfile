@@ -17,6 +17,9 @@ RUN curl https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/
   && rm -rf /opt/gnuarmemb/share/doc/gcc-arm-none-eabi/
 
 ENV PATH="/opt/gnuarmemb/bin:${PATH}"
+ENV GNU_INSTALL_ROOT=${GNUARMEMB_TOOLCHAIN_PATH}
+ENV GNU_VERSION=9.2.1
+ENV GNU_PREFIX=arm-none-eabi
 
 RUN mkdir /sdk && cd /sdk \
   && wget http://mirrors.kernel.org/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_1.4.7-1_amd64.deb \
@@ -25,5 +28,6 @@ RUN mkdir /sdk && cd /sdk \
   && dpkg -i nRF-Command-Line-Tools_10_6_0_Linux-amd64.deb device-tree-compiler_1.4.7-1_amd64.deb JLink_Linux_V660e_x86_64.deb \
   && cd / \
   && rm -rf /sdk
+
 
 WORKDIR /src
