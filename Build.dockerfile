@@ -5,7 +5,7 @@ ENV ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
 ENV GNUARMEMB_TOOLCHAIN_PATH="/gnuarmemb"
 
 RUN apt-get -qq update && apt-get install --no-install-recommends -y git cmake ninja-build gperf \
-  ccache dfu-util device-tree-compiler wget python3-pip xz-utils file \
+  ccache dfu-util device-tree-compiler wget python3-pip xz-utils file unzip patch \
   make gcc gcc-multilib curl ca-certificates
 
 RUN python3 -m pip install --no-cache-dir --upgrade pip tk setuptools wheel \
