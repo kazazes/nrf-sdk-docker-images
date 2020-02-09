@@ -45,7 +45,8 @@ def build_builder():
     build_tag = "{}:latest".format(BUILD_DOCKER_REPO)
     pull_image(build_tag)
     build_builder_docker_image(build_tag)
-    tag_image_as_latest(build_tag)
+    tag_image_as_latest(build_tag, BUILD_DOCKER_REPO)
+    publish_docker_image(build_tag)
     publish_docker_image(build_tag)
 
 
@@ -64,8 +65,8 @@ def pull_if_exists(existing, tag, build_tag):
         pass
 
 
-def tag_image_as_latest(build_tag):
-    cmd = "docker tag {} {}:latest".format(build_tag, BUILD_DOCKER_REPO)
+def tag_image_as_latest(build_tag, hub_repo):
+    cmd = "docker tag {} {}:latest".format(build_tag, hub_repo)
     logging.info(cmd)
     run_shell_command(cmd)
 
@@ -136,7 +137,7 @@ def main():
         pull_if_exists(sdk_built_tags, tag, build_tag)
         build_base_docker_image(build_tag, sdk_downloads[tag])
         if tag == latest:
-            tag_image_as_latest(build_tag)
+            tag_image_as_latest(build_tag, SDK_DOCKER_REPO)
             publish_docker_image("{}:latest".format(SDK_DOCKER_REPO))
         else:
             publish_docker_image(build_tag)
