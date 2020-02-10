@@ -6,6 +6,7 @@ import json
 import configparser
 import logging
 import semver
+import sys
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -132,13 +133,22 @@ def main():
 
     build_builder()
 
-    for tag in list(set(sdk_downloads.keys())):
-        build_tag = "{}:{}".format(SDK_DOCKER_REPO, tag)
+    if "--all" in sys.argv:
+        for tag in list(set(sdk_downloads.keys())):
+            build_tag = "{}:{}".format(SDK_DOCKER_REPO, tag)
+            pull_if_exists(sdk_built_tags, tag, build_tag)
+            build_base_docker_image(build_tag, sdk_downloads[tag])
+            if tag == latest:
+                tag_image_as_latest(build_tag, SDK_DOCKER_REPO)
+                publish_docker_image("{}:latest".format(SDK_DOCKER_REPO))
+            publish_docker_image(build_tag)
+            finished_builds.append(build_tag)
+    else:
+        build_tag = "{}:{}".format(SDK_DOCKER_REPO, latest)
         pull_if_exists(sdk_built_tags, tag, build_tag)
         build_base_docker_image(build_tag, sdk_downloads[tag])
-        if tag == latest:
-            tag_image_as_latest(build_tag, SDK_DOCKER_REPO)
-            publish_docker_image("{}:latest".format(SDK_DOCKER_REPO))
+        tag_image_as_latest(build_tag, SDK_DOCKER_REPO)
+        publish_docker_image("{}:latest".format(SDK_DOCKER_REPO))
         publish_docker_image(build_tag)
         finished_builds.append(build_tag)
 
