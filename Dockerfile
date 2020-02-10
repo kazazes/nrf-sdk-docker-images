@@ -1,4 +1,5 @@
-FROM pckzs/nrfsdk-gcc:latest
+ARG DOCKER_HUB
+FROM ${DOCKER_HUB}:latest
 
 WORKDIR /
 ARG download_url
