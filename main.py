@@ -27,7 +27,8 @@ def run_shell_command(command):
 
 def build_base_docker_image(name, download_url):
     logging.info("Building {}".format(name))
-    cmd = "docker build --cache-from={} --build-arg DOCKER_HUB=\"{}\" --build-arg download_url=\"{}\" -t \"{}\" .".format(
+    cmd = "docker build --cache-from={} --build-arg DOCKER_HUB=\"{}\" \
+        --build-arg download_url=\"{}\" -t \"{}\" .".format(
         name, SDK_DOCKER_REPO, download_url, name)
     logging.info(cmd)
     run_shell_command(cmd)
@@ -35,8 +36,8 @@ def build_base_docker_image(name, download_url):
 
 def build_builder_docker_image(name):
     logging.info("Building {}".format(name))
-    cmd = "docker build -f Build.dockerfile --cache-from={} -t \"{}\" .".format(
-        name, name)
+    cmd = "docker build -f Build.dockerfile --cache-from={} \
+        -t \"{}\" .".format(name, name)
     logging.info(cmd)
     run_shell_command(cmd)
 
@@ -121,7 +122,6 @@ def get_nrf_sdk_downloads():
 
 def main():
     sdk_built_tags = list_repo_tags(SDK_DOCKER_REPO)
-    build_built_tags = list_repo_tags(BUILD_DOCKER_REPO)
 
     sdk_downloads = get_nrf_sdk_downloads()
     finished_builds = []
@@ -131,7 +131,6 @@ def main():
             latest = tag
 
     build_builder()
-
 
     for tag in list(set(sdk_downloads.keys())):
         build_tag = "{}:{}".format(SDK_DOCKER_REPO, tag)
