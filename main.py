@@ -20,6 +20,7 @@ BUILD_DOCKER_REPO = config["nrf-sdk"]["BuildDockerRepo"]
 
 LIST_TAGS_URL = "https://registry.hub.docker.com/v1/repositories/{}/tags"
 
+
 def run_shell_command(command):
     subprocess.run(command, shell=True, check=True)
 
@@ -46,7 +47,7 @@ def build_builder():
     build_builder_docker_image(build_tag)
     tag_image_as_latest(build_tag, BUILD_DOCKER_REPO)
     publish_docker_image(build_tag)
-    publish_docker_image(build_tag)
+    publish_docker_image("{}:latest".format(BUILD_DOCKER_REPO))
 
 
 def pull_image(build_tag):
@@ -131,6 +132,7 @@ def main():
 
     build_builder()
 
+
     for tag in list(set(sdk_downloads.keys())):
         build_tag = "{}:{}".format(SDK_DOCKER_REPO, tag)
         pull_if_exists(sdk_built_tags, tag, build_tag)
@@ -138,8 +140,7 @@ def main():
         if tag == latest:
             tag_image_as_latest(build_tag, SDK_DOCKER_REPO)
             publish_docker_image("{}:latest".format(SDK_DOCKER_REPO))
-        else:
-            publish_docker_image(build_tag)
+        publish_docker_image(build_tag)
         finished_builds.append(build_tag)
 
     map(delete_docker_image, finished_builds)
